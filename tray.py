@@ -1,69 +1,64 @@
-import os
 import sys
-import threading
+
 from PySide2 import QtWidgets, QtGui
+from PySide2.QtCore import QRunnable, QThreadPool
 
 
-class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
-    """
-    CREATE A SYSTEM TRAY ICON CLASS AND ADD MENU
-    """
-    def __init__(self, icon, parent=None):
-        QtWidgets.QSystemTrayIcon.__init__(self, icon, parent)
+class Worker(QRunnable):
+
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+
+    def run(self):
+        self.app.exec_()
+
+
+class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
+
+    def __init__(self):
+        QtWidgets.QSystemTrayIcon.__init__(self, QtGui.QIcon("icons/icon_default.png"), self.w)
+
+        self.pathIconDefault = "icons/icon_default.png"
+        self.pathIconCorrect = "icons/icon_correct.png"
+        self.pathIconExit = "icons/icon_error.png"
+
+        self.app = QtWidgets.QApplication()
+        self.w = QtWidgets.QWidget()
+
         self.setToolTip(f'Voice Assistant')
-        menu = QtWidgets.QMenu(parent)
+        menu = QtWidgets.QMenu(self.w)
 
         set_def = menu.addAction("Set default")
         set_def.triggered.connect(self.set_default)
-        set_def.setIcon(QtGui.QIcon("icon_default.png"))
+        set_def.setIcon(QtGui.QIcon(self.pathIconDefault))
 
         set_corr = menu.addAction("Set correct")
         set_corr.triggered.connect(self.set_correct)
-        set_corr.setIcon(QtGui.QIcon("icon_correct.png"))
-
-        set_err = menu.addAction("Set Error")
-        set_err.triggered.connect(self.err_set)
-        set_err.setIcon(QtGui.QIcon("icon_error.png"))
+        set_corr.setIcon(QtGui.QIcon(self.pathIconCorrect))
 
         exit_ = menu.addAction("Exit")
         exit_.triggered.connect(lambda: sys.exit())
-        exit_.setIcon(QtGui.QIcon("icon.png"))
+        exit_.setIcon(QtGui.QIcon(self.pathIconExit))
 
         menu.addSeparator()
         self.setContextMenu(menu)
         self.activated.connect(self.onTrayIconActivated)
+        self.show()
+        self.app.exec_()
 
     def onTrayIconActivated(self, reason):
         if reason == self.DoubleClick:
             self.set_default()
 
     def set_default(self):
-        self.Update_Icon("icon_default.png")
+        self.Update_Icon(self.pathIconDefault)
 
     def set_correct(self):
-        self.Update_Icon("icon_correct.png")
+        self.Update_Icon(self.pathIconCorrect)
 
     def set_error(self):
-        self.Update_Icon("icon_error.png")
+        self.Update_Icon(self.pathIconExit)
 
     def Update_Icon(self, path):
         self.setIcon(QtGui.QIcon(path))
-
-#?????
-    def err_set(self):
-        self.set_error
-        t = threading.Timer(5.0, self.set_default)
-        t.start()
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    w = QtWidgets.QWidget()
-    tray_icon = SystemTrayIcon(QtGui.QIcon("icon_default.png"), w)
-    tray_icon.show()
-    tray_icon.showMessage('VFX Pipeline', 'Hello "Name of logged in ID')
-    sys.exit(app.exec_())
-    print()
-
-
-if __name__ == '__main__':
-    main()
