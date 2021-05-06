@@ -4,27 +4,19 @@ from PySide2 import QtWidgets, QtGui
 from PySide2.QtCore import QRunnable, QThreadPool
 
 
-class Worker(QRunnable):
-
-    def __init__(self, app):
-        super().__init__()
-        self.app = app
-
-    def run(self):
-        self.app.exec_()
-
-
 class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
 
-    def __init__(self):
-        QtWidgets.QSystemTrayIcon.__init__(self, QtGui.QIcon("icons/icon_default.png"), self.w)
+    def start_processor(self):
+        self.app.exec_()
 
+    def __init__(self):
         self.pathIconDefault = "icons/icon_default.png"
         self.pathIconCorrect = "icons/icon_correct.png"
         self.pathIconExit = "icons/icon_error.png"
 
         self.app = QtWidgets.QApplication()
         self.w = QtWidgets.QWidget()
+        QtWidgets.QSystemTrayIcon.__init__(self, QtGui.QIcon(self.pathIconDefault), self.w)
 
         self.setToolTip(f'Voice Assistant')
         menu = QtWidgets.QMenu(self.w)
@@ -45,7 +37,6 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
         self.setContextMenu(menu)
         self.activated.connect(self.onTrayIconActivated)
         self.show()
-        self.app.exec_()
 
     def onTrayIconActivated(self, reason):
         if reason == self.DoubleClick:
