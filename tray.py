@@ -29,7 +29,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         exit_.triggered.connect(lambda: sys.exit())
         exit_.setIcon(QtGui.QIcon("icon.png"))
 
-
         menu.addSeparator()
         self.setContextMenu(menu)
         self.activated.connect(self.onTrayIconActivated)
@@ -63,6 +62,7 @@ def main():
     tray_icon.show()
     tray_icon.showMessage('VFX Pipeline', 'Hello "Name of logged in ID')
     sys.exit(app.exec_())
+    print()
 
 
 if __name__ == '__main__':
