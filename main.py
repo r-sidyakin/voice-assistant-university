@@ -13,6 +13,7 @@ class Worker(Thread):
         recognizer = sr.Recognizer()
         microphone = sr.Microphone()
         while True:
+            self.icon.set_default()
             with microphone as source:
                 try:
                     print("Говорите")

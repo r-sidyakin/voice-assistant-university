@@ -43,13 +43,13 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
             self.set_default()
 
     def set_default(self):
-        self.Update_Icon(self.pathIconDefault)
+        self.update_Icon(self.pathIconDefault)
 
     def set_correct(self):
-        self.Update_Icon(self.pathIconCorrect)
+        self.update_Icon(self.pathIconCorrect)
 
     def set_error(self):
-        self.Update_Icon(self.pathIconExit)
+        self.update_Icon(self.pathIconExit)
 
-    def Update_Icon(self, path):
+    def update_Icon(self, path):
         self.setIcon(QtGui.QIcon(path))
