@@ -43,6 +43,14 @@ class OpenBrowserCommand(Command):
         webbrowser.open("https://google.com")
 
 
+class OpenCalcCommand(Command):
+    def __init__(self):
+        super().__init__('Открыть калькулятор')
+
+    def run(self):
+        os.system("start calc")
+
+
 class ShellCommand(Command):
     def __init__(self, name, path):
         super().__init__(name)

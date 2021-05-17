@@ -11,7 +11,7 @@ import urllib
 import time
 import math
 from tray import SystemTrayIconVoiceAssistant
-from commands import predict_command_by_name, OpenBrowserCommand
+from commands import predict_command_by_name, OpenBrowserCommand, OpenCalcCommand
 
 
 def rms(frame, width, short_normalize):
@@ -72,7 +72,7 @@ class Worker(Thread):
                         input=True,
                         output=True,
                         frames_per_buffer=1024)
-        commands = [OpenBrowserCommand()]
+        commands = [OpenBrowserCommand(), OpenCalcCommand()]
         key_phrase = 'генри'
         while True:
             try:
