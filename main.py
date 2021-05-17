@@ -1,7 +1,61 @@
+import collections
+import struct
 from threading import Thread
 import speech_recognition as sr
-
+import pyaudio
+import wave
+import audioop
+from collections import deque
+import os
+import urllib
+import time
+import math
 from tray import SystemTrayIconVoiceAssistant
+from commands import predict_command_by_name, OpenBrowserCommand
+
+
+def rms(frame, width, short_normalize):
+    count = len(frame) / width
+    format = "%dh" % (count)
+    shorts = struct.unpack(format, frame)
+
+    sum_squares = 0.0
+    for sample in shorts:
+        n = sample * short_normalize
+        sum_squares += n * n
+    rms = math.pow(sum_squares / count, 0.5)
+
+    return rms * 1000
+
+
+def record(stream, rate, icon):
+    threshold = 10
+    short_normalize = (1.0 / 32768.0)
+    chunk = 1024
+    width = 2
+    timeout_length = 1
+
+    while True:
+        input = stream.read(chunk)
+        rms_val = rms(input, width, short_normalize)
+        if rms_val > threshold:
+            break
+
+    print('Noise detected, recording beginning')
+    icon.set_correct()
+    rec = collections.deque()
+    current = time.time()
+    end = time.time() + timeout_length
+
+    while current <= end:
+        data = stream.read(chunk)
+        if rms(data, width, short_normalize) >= threshold: end = time.time() + timeout_length
+        current = time.time()
+        rec.append(data)
+
+    icon.set_default()
+    print('Stopped recording')
+    return sr.AudioData(b"".join(rec), rate, width)
 
 
 class Worker(Thread):
@@ -11,18 +65,35 @@ class Worker(Thread):
 
     def run(self):
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone()
+        p = pyaudio.PyAudio()
+        stream = p.open(format=pyaudio.paInt16,
+                        channels=1,
+                        rate=16000,
+                        input=True,
+                        output=True,
+                        frames_per_buffer=1024)
+        commands = [OpenBrowserCommand()]
+        key_phrase = 'салам'
         while True:
-            self.icon.set_default()
-            with microphone as source:
-                try:
-                    print("Говорите")
-                    recognizer.adjust_for_ambient_noise(source)
-                    audio = recognizer.listen(source)
-                    data = recognizer.recognize_google(audio, language="ru-RU")
-                    print("Вы сказали: " + data.lower())
-                except Exception as e:
-                    print(e)
+            try:
+                print("Говорите")
+                audio = record(stream, 16000, self.icon)
+                data = recognizer.recognize_google(audio, language="ru-RU")
+                print("Вы сказали: " + data.lower())
+                voice_text = data.lower()
+                command = predict_command_by_name(voice_text, commands)
+
+                if not voice_text.startswith(key_phrase):
+                    print(key_phrase, 'не сключевой')
+                    continue
+
+                if command is not None:
+                    command.run()
+                else:
+                    print("Такой команды нет")
+
+            except Exception as e:
+                print(e)
 
 
 def main():
@@ -30,7 +101,6 @@ def main():
     worker = Worker(icon)
     worker.daemon = True
     worker.start()
-    print('dsadsa')
     icon.start_processor()
 
 
