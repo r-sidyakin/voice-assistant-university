@@ -1,5 +1,6 @@
 import os
 import difflib
+import webbrowser
 
 
 class Command:
@@ -15,7 +16,7 @@ class OpenBrowserCommand(Command):
         super().__init__('Открыть браузер')
 
     def run(self):
-        os.system('start www.google.com')
+        webbrowser.open("https://google.com")
 
 
 def predict_command_by_name(predict_name, commands):
@@ -28,6 +29,3 @@ def predict_command_by_name(predict_name, commands):
             best_match = seq
 
     return result
-
-
-
