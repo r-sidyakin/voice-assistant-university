@@ -41,7 +41,7 @@ def record(stream, rate, icon):
         if rms_val > threshold:
             break
 
-    print('Noise detected, recording beginning')
+    print('Шум обнаружен, началась запись')
     icon.set_correct()
     rec = collections.deque()
     current = time.time()
@@ -54,7 +54,7 @@ def record(stream, rate, icon):
         rec.append(data)
 
     icon.set_default()
-    print('Stopped recording')
+    print('Запись остановлена')
     return sr.AudioData(b"".join(rec), rate, width)
 
 
@@ -73,7 +73,7 @@ class Worker(Thread):
                         output=True,
                         frames_per_buffer=1024)
         commands = [OpenBrowserCommand()]
-        key_phrase = 'салам'
+        key_phrase = 'генри'
         while True:
             try:
                 print("Говорите")
@@ -84,7 +84,7 @@ class Worker(Thread):
                 command = predict_command_by_name(voice_text, commands)
 
                 if not voice_text.startswith(key_phrase):
-                    print(key_phrase, 'не сключевой')
+                    print(voice_text, 'не с ключевой')
                     continue
 
                 if command is not None:
