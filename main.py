@@ -3,15 +3,10 @@ import struct
 from threading import Thread
 import speech_recognition as sr
 import pyaudio
-import wave
-import audioop
-from collections import deque
-import os
-import urllib
 import time
 import math
 from tray import SystemTrayIconVoiceAssistant
-from commands import predict_command_by_name, OpenBrowserCommand, OpenCalcCommand
+from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands
 
 
 def rms(frame, width, short_normalize):
@@ -72,8 +67,10 @@ class Worker(Thread):
                         input=True,
                         output=True,
                         frames_per_buffer=1024)
-        commands = [OpenBrowserCommand(), OpenCalcCommand()]
-        key_phrase = 'генри'
+
+        commands = [OpenBrowserCommand(), OpenNewsCommand()]
+        commands.extend(load_commands("commands.json"))
+        key_phrase = 'помощник'
         while True:
             try:
                 print("Говорите")
@@ -81,19 +78,23 @@ class Worker(Thread):
                 data = recognizer.recognize_google(audio, language="ru-RU")
                 print("Вы сказали: " + data.lower())
                 voice_text = data.lower()
-                command = predict_command_by_name(voice_text, commands)
 
                 if not voice_text.startswith(key_phrase):
                     print(voice_text, 'не с ключевой')
+                    self.icon.set_error()
                     continue
+
+                command = predict_command_by_name(voice_text[len(key_phrase):].strip(), commands)
 
                 if command is not None:
                     command.run()
                 else:
                     print("Такой команды нет")
+                    self.icon.set_error()
 
             except Exception as e:
                 print(e)
+                self.icon.set_error()
 
 
 def main():

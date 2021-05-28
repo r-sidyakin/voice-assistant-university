@@ -1,12 +1,13 @@
 import json
 import os
 import difflib
+import subprocess
 import webbrowser
 
 
 def predict_command_by_name(predict_name, commands):
     result = None
-    best_match = 45
+    best_match = 65
     for command in commands:
         seq = difflib.SequenceMatcher(None, command.name, predict_name.lower()).ratio() * 100
         if best_match < seq:
@@ -43,12 +44,12 @@ class OpenBrowserCommand(Command):
         webbrowser.open("https://google.com")
 
 
-class OpenCalcCommand(Command):
+class OpenNewsCommand(Command):
     def __init__(self):
-        super().__init__('Открыть калькулятор')
+        super().__init__('Открыть новости')
 
     def run(self):
-        os.system("start calc")
+        webbrowser.open("https://yandex.ru/news/")
 
 
 class ShellCommand(Command):
@@ -57,4 +58,9 @@ class ShellCommand(Command):
         self.path = path
 
     def run(self):
-        print(os.system('start ' + self.path))
+        if not os.path.exists(self.path):
+            raise FileNotFoundError("Command file not found")
+        if self.path.lower().endswith(('cmd', 'sh')):
+            process = subprocess.Popen([self.path, self.name])
+        else:
+            raise FileExistsError("File extensions must be sh or cmd")
