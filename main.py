@@ -1,56 +1,11 @@
-import collections
-import struct
-from threading import Thread
-import speech_recognition as sr
-import pyaudio
 import time
-import math
+from threading import Thread
+
+from speech_recognition import UnknownValueError
+
 from tray import SystemTrayIconVoiceAssistant
-from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands
-
-
-def rms(frame, width, short_normalize):
-    count = len(frame) / width
-    format = "%dh" % (count)
-    shorts = struct.unpack(format, frame)
-
-    sum_squares = 0.0
-    for sample in shorts:
-        n = sample * short_normalize
-        sum_squares += n * n
-    rms = math.pow(sum_squares / count, 0.5)
-
-    return rms * 1000
-
-
-def record(stream, rate, icon):
-    threshold = 10
-    short_normalize = (1.0 / 32768.0)
-    chunk = 1024
-    width = 2
-    timeout_length = 1
-
-    while True:
-        input = stream.read(chunk)
-        rms_val = rms(input, width, short_normalize)
-        if rms_val > threshold:
-            break
-
-    print('Шум обнаружен, началась запись')
-    icon.set_correct()
-    rec = collections.deque()
-    current = time.time()
-    end = time.time() + timeout_length
-
-    while current <= end:
-        data = stream.read(chunk)
-        if rms(data, width, short_normalize) >= threshold: end = time.time() + timeout_length
-        current = time.time()
-        rec.append(data)
-
-    icon.set_default()
-    print('Запись остановлена')
-    return sr.AudioData(b"".join(rec), rate, width)
+from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands, VoiceRecognizer
+import logging
 
 
 class Worker(Thread):
@@ -59,29 +14,24 @@ class Worker(Thread):
         self.icon = icon
 
     def run(self):
-        recognizer = sr.Recognizer()
-        p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paInt16,
-                        channels=1,
-                        rate=16000,
-                        input=True,
-                        output=True,
-                        frames_per_buffer=1024)
-
+        recognizer = VoiceRecognizer(self.icon)
         commands = [OpenBrowserCommand(), OpenNewsCommand()]
         commands.extend(load_commands("commands.json"))
         key_phrase = 'помощник'
         while True:
             try:
                 print("Говорите")
-                audio = record(stream, 16000, self.icon)
-                data = recognizer.recognize_google(audio, language="ru-RU")
+                data = recognizer.recognize_voice()
                 print("Вы сказали: " + data.lower())
+                logging.info("Вы сказали: " + data.lower())
                 voice_text = data.lower()
 
                 if not voice_text.startswith(key_phrase):
-                    print(voice_text, 'не с ключевой')
+                    print('не с ключевой')
+                    logging.info('не с ключевой')
                     self.icon.set_error()
+                    time.sleep(1)
+                    self.icon.set_default()
                     continue
 
                 command = predict_command_by_name(voice_text[len(key_phrase):].strip(), commands)
@@ -89,15 +39,23 @@ class Worker(Thread):
                 if command is not None:
                     command.run()
                 else:
-                    print("Такой команды нет")
+                    logging.info("Такой команды нет")
                     self.icon.set_error()
+                    time.sleep(1)
+                    self.icon.set_default()
 
             except Exception as e:
                 print(e)
+                if e.__class__ == UnknownValueError:
+                    continue
+
                 self.icon.set_error()
+                time.sleep(1)
+                self.icon.set_default()
 
 
 def main():
+    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
     icon = SystemTrayIconVoiceAssistant()
     worker = Worker(icon)
     worker.daemon = True
