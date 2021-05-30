@@ -1,10 +1,12 @@
+import difflib
 import time
 from threading import Thread
 
 from speech_recognition import UnknownValueError
 
 from tray import SystemTrayIconVoiceAssistant
-from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands, VoiceRecognizer
+from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands, VoiceRecognizer, \
+    FindCommand, RadioCommand
 import logging
 
 
@@ -15,9 +17,10 @@ class Worker(Thread):
 
     def run(self):
         recognizer = VoiceRecognizer(self.icon)
-        commands = [OpenBrowserCommand(), OpenNewsCommand()]
+        commands = [OpenBrowserCommand(), OpenNewsCommand(), FindCommand(), RadioCommand()]
         commands.extend(load_commands("commands.json"))
-        key_phrase = 'помощник'
+        key_phrase = 'подручный'
+
         while True:
             try:
                 print("Говорите")
@@ -26,7 +29,12 @@ class Worker(Thread):
                 logging.info("Вы сказали: " + data.lower())
                 voice_text = data.lower()
 
-                if not voice_text.startswith(key_phrase):
+                if len(voice_text) < len(key_phrase):
+                    continue
+
+                seq = difflib.SequenceMatcher(None, key_phrase, voice_text[0:len(key_phrase)]).ratio() * 100
+
+                if seq < 75:
                     print('не с ключевой')
                     logging.info('не с ключевой')
                     self.icon.set_error()
@@ -34,10 +42,10 @@ class Worker(Thread):
                     self.icon.set_default()
                     continue
 
-                command = predict_command_by_name(voice_text[len(key_phrase):].strip(), commands)
+                command, argument = predict_command_by_name(voice_text[len(key_phrase):].strip(), commands)
 
                 if command is not None:
-                    command.run()
+                    command.run(argument if len(argument) != 0 else None)
                 else:
                     logging.info("Такой команды нет")
                     self.icon.set_error()

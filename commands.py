@@ -60,7 +60,7 @@ class VoiceRecognizer:
         current = time.time()
         end = time.time() + timeout_length
 
-        while current <= end:
+        while current <= end and len(rec) <= 124:
             data = stream.read(chunk)
             if self.rms(data, width, short_normalize) >= threshold: end = time.time() + timeout_length
             current = time.time()
@@ -78,13 +78,21 @@ class VoiceRecognizer:
 
 
 def predict_command_by_name(predict_name, commands):
-    result = None
+    result = (None, None)
     best_match = 65
-    for command in commands:
-        seq = difflib.SequenceMatcher(None, command.name, predict_name.lower()).ratio() * 100
-        if best_match < seq:
-            result = command
-            best_match = seq
+    tuples = [predict_name]
+    split = predict_name.split()
+    if len(split) > 1:
+        tuples = []
+        for i in range(1, len(split) + 1):
+            tuples.insert(0, (" ".join(split[0:i]), " ".join(split[i:])))
+
+    for t in tuples:
+        for command in commands:
+            seq = difflib.SequenceMatcher(None, command.name, t[0].lower()).ratio() * 100
+            if best_match < seq:
+                result = (command, t[1])
+                best_match = seq
 
     return result
 
@@ -104,7 +112,7 @@ class Command:
     def __init__(self, name):
         self.name = name
 
-    def run(self):
+    def run(self, argument= None):
         pass
 
 
@@ -112,7 +120,7 @@ class OpenBrowserCommand(Command):
     def __init__(self):
         super().__init__('Открыть браузер')
 
-    def run(self):
+    def run(self, argument= None):
         webbrowser.open("https://google.com")
 
 
@@ -120,8 +128,24 @@ class OpenNewsCommand(Command):
     def __init__(self):
         super().__init__('Открыть новости')
 
-    def run(self):
+    def run(self, argument= None):
         webbrowser.open("https://yandex.ru/news/")
+
+
+class FindCommand(Command):
+    def __init__(self):
+        super().__init__('Найти')
+
+    def run(self, argument=None):
+        webbrowser.open('https://yandex.ru/search/?text=' + argument)
+
+
+class RadioCommand(Command):
+    def __init__(self):
+        super().__init__('Радио')
+
+    def run(self, argument=None):
+        pass
 
 
 class ShellCommand(Command):
@@ -129,7 +153,7 @@ class ShellCommand(Command):
         super().__init__(name)
         self.path = path
 
-    def run(self):
+    def run(self, argument= None):
         if not os.path.exists(self.path):
             raise FileNotFoundError("Command file not found")
         if self.path.lower().endswith(('cmd', 'sh')):
