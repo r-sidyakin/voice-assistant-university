@@ -16,12 +16,12 @@ class UnitTest(TestCase):
     def test_positive_variability_command(self):
         need_cmd = Command("открой браузер")
         not_need_cmd = Command("запусти калькулятор")
-        self.assertEqual(predict_command_by_name("открывай браузер", [need_cmd, not_need_cmd]), need_cmd)
+        self.assertEqual(predict_command_by_name("открывай браузер", [need_cmd, not_need_cmd])[0], need_cmd)
 
     def test_negative_variability_command(self):
         need_cmd = Command("открой браузер")
         not_need_cmd = Command("запусти калькулятор")
-        self.assertEqual(predict_command_by_name("сделай что-то", [need_cmd, not_need_cmd]), None)
+        self.assertEqual(predict_command_by_name("сделай что-то", [need_cmd, not_need_cmd])[0], None)
 
     def test_positive_loader_of_command(self):
         commands = load_commands("commands.json")

@@ -22,7 +22,9 @@ class Worker(Thread):
         key_phrase = 'подручный'
 
         while True:
+            time.sleep(1)
             try:
+                self.icon.set_default()
                 print("Говорите")
                 data = recognizer.recognize_voice()
                 print("Вы сказали: " + data.lower())
@@ -38,8 +40,6 @@ class Worker(Thread):
                     print('не с ключевой')
                     logging.info('не с ключевой')
                     self.icon.set_error()
-                    time.sleep(1)
-                    self.icon.set_default()
                     continue
 
                 command, argument = predict_command_by_name(voice_text[len(key_phrase):].strip(), commands)
@@ -49,17 +49,12 @@ class Worker(Thread):
                 else:
                     logging.info("Такой команды нет")
                     self.icon.set_error()
-                    time.sleep(1)
-                    self.icon.set_default()
-
             except Exception as e:
                 print(e)
                 if e.__class__ == UnknownValueError:
                     continue
-
                 self.icon.set_error()
-                time.sleep(1)
-                self.icon.set_default()
+
 
 
 def main():
