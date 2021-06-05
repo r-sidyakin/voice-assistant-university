@@ -1,5 +1,5 @@
 import sys
-
+import os
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtCore import QRunnable, QThreadPool
 
@@ -21,17 +21,17 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
         self.setToolTip(f'Voice Assistant')
         menu = QtWidgets.QMenu(self.w)
 
-        set_def = menu.addAction("Set default")
-        set_def.triggered.connect(self.set_default)
-        set_def.setIcon(QtGui.QIcon(self.pathIconDefault))
+        set_def = menu.addAction("Open Log file")
+        set_def.triggered.connect(self.openLog)
+        # set_def.setIcon(QtGui.QIcon(self.pathIconDefault))
 
-        set_corr = menu.addAction("Set correct")
-        set_corr.triggered.connect(self.set_correct)
-        set_corr.setIcon(QtGui.QIcon(self.pathIconCorrect))
+        # set_corr = menu.addAction("Set correct")
+        # set_corr.triggered.connect(self.set_correct)
+        # set_corr.setIcon(QtGui.QIcon(self.pathIconCorrect))
 
         exit_ = menu.addAction("Exit")
         exit_.triggered.connect(lambda: sys.exit())
-        exit_.setIcon(QtGui.QIcon(self.pathIconExit))
+        # exit_.setIcon(QtGui.QIcon(self.pathIconExit))
 
         menu.addSeparator()
         self.setContextMenu(menu)
@@ -41,6 +41,9 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
     def onTrayIconActivated(self, reason):
         if reason == self.DoubleClick:
             self.set_default()
+
+    def openLog(self):
+        os.system("gedit app.log")
 
     def set_default(self):
         self.update_Icon(self.pathIconDefault)

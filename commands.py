@@ -2,6 +2,7 @@ import json
 import os
 import difflib
 import subprocess
+import sys
 import webbrowser
 import speech_recognition as sr
 import pyaudio
@@ -11,6 +12,7 @@ import logging
 import pyaudio
 import collections
 import struct
+#import vlc
 
 
 class VoiceRecognizer:
@@ -79,8 +81,8 @@ class VoiceRecognizer:
 
 def predict_command_by_name(predict_name, commands):
     result = (None, None)
-    best_match = 65
-    tuples = [predict_name]
+    best_match = 50
+    tuples = [(predict_name, '')]
     split = predict_name.split()
     if len(split) > 1:
         tuples = []
@@ -112,7 +114,7 @@ class Command:
     def __init__(self, name):
         self.name = name
 
-    def run(self, argument= None):
+    def run(self, argument=None):
         pass
 
 
@@ -120,15 +122,41 @@ class OpenBrowserCommand(Command):
     def __init__(self):
         super().__init__('Открыть браузер')
 
-    def run(self, argument= None):
+    def run(self, argument=None):
         webbrowser.open("https://google.com")
+
+
+class CloseBrowserCommand(Command):
+    def __init__(self):
+        super().__init__('Закрой браузер')
+
+    def run(self, argument=None):
+        r = webbrowser.get()
+        os.system("pkill firefox")
+
+
+class ClosePlayerCommand(Command):
+    def __init__(self):
+        super().__init__('Закрой плеер')
+
+    def run(self, argument=None):
+        os.system("pkill vlc")
+
+
+class Exit(Command):
+    def __init__(self, app):
+        self.app = app
+        super().__init__('Выключайся')
+
+    def run(self, argument=None):
+        self.app.quit()
 
 
 class OpenNewsCommand(Command):
     def __init__(self):
         super().__init__('Открыть новости')
 
-    def run(self, argument= None):
+    def run(self, argument=None):
         webbrowser.open("https://yandex.ru/news/")
 
 
@@ -140,12 +168,30 @@ class FindCommand(Command):
         webbrowser.open('https://yandex.ru/search/?text=' + argument)
 
 
+class CloseCommand(Command):
+    def __init__(self):
+        super().__init__('Закрой калькулятор')
+
+    def run(self, argument=None):
+        os.system("pkill galculator")
+
+
 class RadioCommand(Command):
     def __init__(self):
         super().__init__('Радио')
 
     def run(self, argument=None):
-        pass
+        p = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
+        subprocess.call(p.play())
+        # file = open('radio.json', 'r', encoding='utf-8')  # открываем файл на чтение
+        # data = json.load(file)  # загружаем из файла данные в словарь data
+        # file.close()
+        # radioList = []
+        # for element_array in data:
+        #   if element_array['name']==argument :
+        #  p = vlc.MediaPlayer(element_array['url'])
+        #   p.play()
+        # pass
 
 
 class ShellCommand(Command):
@@ -153,7 +199,7 @@ class ShellCommand(Command):
         super().__init__(name)
         self.path = path
 
-    def run(self, argument= None):
+    def run(self, argument=None):
         if not os.path.exists(self.path):
             raise FileNotFoundError("Command file not found")
         if self.path.lower().endswith(('cmd', 'sh')):

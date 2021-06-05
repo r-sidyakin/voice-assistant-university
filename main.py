@@ -5,8 +5,7 @@ from threading import Thread
 from speech_recognition import UnknownValueError
 
 from tray import SystemTrayIconVoiceAssistant
-from commands import predict_command_by_name, OpenBrowserCommand, OpenNewsCommand, load_commands, VoiceRecognizer, \
-    FindCommand, RadioCommand
+from commands import *
 import logging
 
 
@@ -17,9 +16,10 @@ class Worker(Thread):
 
     def run(self):
         recognizer = VoiceRecognizer(self.icon)
-        commands = [OpenBrowserCommand(), OpenNewsCommand(), FindCommand(), RadioCommand()]
+        commands = [OpenBrowserCommand(), OpenNewsCommand(), FindCommand(), RadioCommand(), CloseCommand(),
+                    CloseBrowserCommand(), Exit(self.icon.app), ClosePlayerCommand()]
         commands.extend(load_commands("commands.json"))
-        key_phrase = 'подручный'
+        key_phrase = 'помощник'
 
         while True:
             time.sleep(1)
@@ -38,7 +38,7 @@ class Worker(Thread):
 
                 if seq < 75:
                     print('не с ключевой')
-                    logging.info('не с ключевой')
+                    logging.error('ключевое слово - Помощник - не распознано: ' + data.lower())
                     self.icon.set_error()
                     continue
 
@@ -47,7 +47,7 @@ class Worker(Thread):
                 if command is not None:
                     command.run(argument if len(argument) != 0 else None)
                 else:
-                    logging.info("Такой команды нет")
+                    logging.info("Такой команды нет: " + data.lower())
                     self.icon.set_error()
             except Exception as e:
                 print(e)
@@ -56,9 +56,9 @@ class Worker(Thread):
                 self.icon.set_error()
 
 
-
 def main():
-    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
     icon = SystemTrayIconVoiceAssistant()
     worker = Worker(icon)
     worker.daemon = True
