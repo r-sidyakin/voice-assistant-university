@@ -181,8 +181,9 @@ class RadioCommand(Command):
         super().__init__('Радио')
 
     def run(self, argument=None):
-        p = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
-        subprocess.call(p.play())
+        pass
+        # p = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
+        # subprocess.call(p.play())
         # file = open('radio.json', 'r', encoding='utf-8')  # открываем файл на чтение
         # data = json.load(file)  # загружаем из файла данные в словарь data
         # file.close()
