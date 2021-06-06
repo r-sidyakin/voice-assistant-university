@@ -1,6 +1,14 @@
 [
   {
-    "name": "открыть банан",
-    "path": "C:\\Users\\User\\PycharmProjects\\voice-assistant\\User_Shell_Commands\\banana.cmd"
+    "name": "открыть калькулятор",
+    "path": "./User_Shell_Commands/banana.sh"
+  },
+  {
+    "name": "открыть player",
+    "path": "./User_Shell_Commands/test.sh"
+  },
+  {
+    "name": "открыть лог-файл",
+    "path": "./User_Shell_Commands/log.sh"
   }
 ]
