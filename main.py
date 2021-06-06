@@ -7,7 +7,6 @@ from speech_recognition import UnknownValueError
 from tray import SystemTrayIconVoiceAssistant
 from commands import *
 import logging
-import vlc
 
 
 class Worker(Thread):
