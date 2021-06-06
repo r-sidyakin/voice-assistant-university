@@ -2,17 +2,15 @@ import json
 import os
 import difflib
 import subprocess
-import sys
 import webbrowser
 import speech_recognition as sr
-import pyaudio
 import time
 import math
 import logging
 import pyaudio
 import collections
 import struct
-#import vlc
+import vlc
 
 
 class VoiceRecognizer:
@@ -178,21 +176,36 @@ class CloseCommand(Command):
 
 class RadioCommand(Command):
     def __init__(self):
+        self.current_index_radio = 0
+        file = open("stantions.json", 'r', encoding='utf-8')  # открываем файл на чтение
+        data = json.load(file)  # загружаем из файла данные в словарь data
+        file.close()
+        self.radios = data;
+        self.player = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
+        self.player.audio_set_volume(20)
         super().__init__('Радио')
 
     def run(self, argument=None):
-        pass
-        # p = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
-        # subprocess.call(p.play())
-        # file = open('radio.json', 'r', encoding='utf-8')  # открываем файл на чтение
-        # data = json.load(file)  # загружаем из файла данные в словарь data
-        # file.close()
-        # radioList = []
-        # for element_array in data:
-        #   if element_array['name']==argument :
-        #  p = vlc.MediaPlayer(element_array['url'])
-        #   p.play()
-        # pass
+        if argument == 'включить':
+            self.player.play()
+        elif argument == 'выключить':
+            self.player.stop()
+        elif argument == 'громче':
+            self.player.audio_set_volume(self.player.audio_get_volume() - 10)
+        elif argument == 'тише':
+            self.player.audio_set_volume(self.player.audio_get_volume() + 10)
+        elif argument == 'следующая станция':
+            self.current_index_radio += 1
+            if self.current_index_radio >= len(self.radios):
+                self.current_index_radio = 0
+            self.player.set_mrl(self.radios[self.current_index_radio])
+            self.player.play()
+        elif argument == 'предыдущая станция':
+            self.current_index_radio -= 1
+            if self.current_index_radio < 0:
+                self.current_index_radio = len(self.radios)-1
+            self.player.set_mrl(self.radios[self.current_index_radio])
+            self.player.play()
 
 
 class ShellCommand(Command):
