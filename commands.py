@@ -192,7 +192,7 @@ class RadioCommand(Command):
         if argument == 'включить':
             self.player.play()
         elif argument == 'выключить':
-            self.player.stop()
+            self.player.pause()
         elif argument == 'громче':
             self.player.audio_set_volume(self.player.audio_get_volume() - 10)
         elif argument == 'тише':
