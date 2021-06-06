@@ -26,7 +26,7 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
         set_def.triggered.connect(self.openLog)
 
         set_def = menu.addAction("Open json file")
-        set_def.triggered.connect(self.openJson())
+        set_def.triggered.connect(self.openJson)
 
         exit_ = menu.addAction("Exit")
 
