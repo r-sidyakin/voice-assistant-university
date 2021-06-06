@@ -7,7 +7,7 @@ class UnitTest(TestCase):
     def test_positive_recognize_command(self):
         recognizer = VoiceRecognizer()
         data = recognizer.recognize_voice()
-        self.assertEqual(recognizer.recognize_voice(), "тест")
+        self.assertEqual(data, "тест")
 
     def test_negative_recognize_command(self):
         recognizer = VoiceRecognizer()
