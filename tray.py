@@ -29,6 +29,7 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
         set_def.triggered.connect(self.openJson())
 
         exit_ = menu.addAction("Exit")
+
         exit_.triggered.connect(lambda: sys.exit())
 
         menu.addSeparator()
