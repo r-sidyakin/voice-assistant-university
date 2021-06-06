@@ -4,6 +4,7 @@ from commands import Command, predict_command_by_name, VoiceRecognizer, load_com
 
 recognizer = VoiceRecognizer()
 
+
 class UnitTest(TestCase):
     def test_positive_recognize_command(self):
         data = recognizer.recognize_voice()

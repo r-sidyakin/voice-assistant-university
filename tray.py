@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import os
 from PySide2 import QtWidgets, QtGui
@@ -23,6 +24,9 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
 
         set_def = menu.addAction("Open Log file")
         set_def.triggered.connect(self.openLog)
+
+        set_def = menu.addAction("Open json file")
+        set_def.triggered.connect(self.openJson())
         # set_def.setIcon(QtGui.QIcon(self.pathIconDefault))
 
         # set_corr = menu.addAction("Set correct")
@@ -43,7 +47,10 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
             self.set_default()
 
     def openLog(self):
-        os.system("gedit app.log")
+        os.startfile('app.log', 'open')
+
+    def openJson(self):
+        os.startfile('commands.json', 'open')
 
     def set_default(self):
         self.update_Icon(self.pathIconDefault)
