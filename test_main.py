@@ -2,15 +2,14 @@ from unittest import TestCase
 
 from commands import Command, predict_command_by_name, VoiceRecognizer, load_commands
 
+recognizer = VoiceRecognizer()
 
 class UnitTest(TestCase):
     def test_positive_recognize_command(self):
-        recognizer = VoiceRecognizer()
         data = recognizer.recognize_voice()
         self.assertEqual(data, "тест")
 
     def test_negative_recognize_command(self):
-        recognizer = VoiceRecognizer()
         self.assertNotEqual(recognizer.recognize_voice(), "не тест")
 
     def test_positive_variability_command(self):
