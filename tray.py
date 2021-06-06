@@ -42,10 +42,18 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
             self.set_default()
 
     def openLog(self):
-        os.startfile('app.log', 'open')
+        if sys.platform == "win32":
+            os.startfile('app.log')
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, 'app.log'])
 
     def openJson(self):
-        os.startfile('commands.json', 'open')
+        if sys.platform == "win32":
+            os.startfile('commands.json')
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, 'commands.json'])
 
     def set_default(self):
         self.update_Icon(self.pathIconDefault)
