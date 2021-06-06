@@ -98,9 +98,12 @@ def predict_command_by_name(predict_name, commands):
 
 
 def load_commands(path):
-    file = open(path, 'r', encoding='utf-8')  # открываем файл на чтение
-    data = json.load(file)  # загружаем из файла данные в словарь data
-    file.close()
+    try:
+        file = open(path, 'r', encoding='utf-8')  # открываем файл на чтение
+        data = json.load(file)  # загружаем из файла данные в словарь data
+        file.close()
+    except:
+        return None
     commands = []
     for element_array in data:
         new_command = ShellCommand(element_array["name"], element_array["path"])
@@ -203,7 +206,7 @@ class RadioCommand(Command):
         elif argument == 'предыдущая станция':
             self.current_index_radio -= 1
             if self.current_index_radio < 0:
-                self.current_index_radio = len(self.radios)-1
+                self.current_index_radio = len(self.radios) - 1
             self.player.set_mrl(self.radios[self.current_index_radio])
             self.player.play()
 
