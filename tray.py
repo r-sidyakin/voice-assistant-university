@@ -27,15 +27,9 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
 
         set_def = menu.addAction("Open json file")
         set_def.triggered.connect(self.openJson())
-        # set_def.setIcon(QtGui.QIcon(self.pathIconDefault))
-
-        # set_corr = menu.addAction("Set correct")
-        # set_corr.triggered.connect(self.set_correct)
-        # set_corr.setIcon(QtGui.QIcon(self.pathIconCorrect))
 
         exit_ = menu.addAction("Exit")
         exit_.triggered.connect(lambda: sys.exit())
-        # exit_.setIcon(QtGui.QIcon(self.pathIconExit))
 
         menu.addSeparator()
         self.setContextMenu(menu)
