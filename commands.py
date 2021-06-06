@@ -185,7 +185,7 @@ class RadioCommand(Command):
         file.close()
         self.radios = data;
         self.player = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
-        self.player.audio_set_volume(20)
+        self.player.audio_set_volume(50)
         super().__init__('Радио')
 
     def run(self, argument=None):
