@@ -184,7 +184,7 @@ class RadioCommand(Command):
         data = json.load(file)  # загружаем из файла данные в словарь data
         file.close()
         self.radios = data;
-        self.player = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
+        self.player = vlc.Instance('--verbose 3')
         self.player.audio_set_volume(50)
         super().__init__('Радио')
 
