@@ -27,6 +27,9 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
 
         set_def = menu.addAction("Open json file")
         set_def.triggered.connect(self.openJson)
+        self.keyModeMenu = menu.addAction("Active key")
+        self.keyModeMenu.setCheckable(True)
+        self.keyModeMenu.triggered.connect(self.checkkey)
 
         exit_ = menu.addAction("Exit")
 
@@ -40,7 +43,8 @@ class SystemTrayIconVoiceAssistant(QtWidgets.QSystemTrayIcon):
     def onTrayIconActivated(self, reason):
         if reason == self.DoubleClick:
             self.set_default()
-
+    def checkkey(self):
+        return self.keyModeMenu.isChecked()
     def openLog(self):
         if sys.platform == "win32":
             os.startfile('app.log')

@@ -10,7 +10,7 @@ import logging
 import pyaudio
 import collections
 import struct
-# import vlc
+import vlc
 
 
 class VoiceRecognizer:
@@ -51,7 +51,7 @@ class VoiceRecognizer:
                 break
 
         print('Шум обнаружен, началась запись')
-        logging.info('Шум обнаружен, началась запись')
+        #logging.info('Шум обнаружен, началась запись')
 
         if self.tray_interface is not None:
             self.tray_interface.set_correct()
@@ -69,7 +69,7 @@ class VoiceRecognizer:
         if self.tray_interface is not None:
             self.tray_interface.set_default()
 
-        logging.info('Запись остановлена')
+        #logging.info('Запись остановлена')
         return sr.AudioData(b"".join(rec), rate, width)
 
     def recognize_voice(self):
@@ -77,9 +77,9 @@ class VoiceRecognizer:
         return self.recognizer.recognize_google(audio, language="ru-RU")
 
 
-def predict_command_by_name(predict_name, commands):
+def predict_command_by_name(predict_name, commands,best_match):
     result = (None, None)
-    best_match = 50
+    #best_match = 50
     tuples = [(predict_name, '')]
     split = predict_name.split()
     if len(split) > 1:
@@ -129,7 +129,7 @@ class OpenBrowserCommand(Command):
 
 class CloseBrowserCommand(Command):
     def __init__(self):
-        super().__init__('Закрой браузер')
+        super().__init__('Закрыть браузер')
 
     def run(self, argument=None):
         r = webbrowser.get()
@@ -138,7 +138,7 @@ class CloseBrowserCommand(Command):
 
 class ClosePlayerCommand(Command):
     def __init__(self):
-        super().__init__('Закрой плеер')
+        super().__init__('Закрыть плеер')
 
     def run(self, argument=None):
         os.system("pkill vlc")
@@ -171,7 +171,7 @@ class FindCommand(Command):
 
 class CloseCommand(Command):
     def __init__(self):
-        super().__init__('Закрой калькулятор')
+        super().__init__('Закрыть калькулятор')
 
     def run(self, argument=None):
         os.system("pkill galculator")
@@ -180,36 +180,35 @@ class CloseCommand(Command):
 class RadioCommand(Command):
     def __init__(self):
         self.current_index_radio = 0
-        # file = open("stantions.json", 'r', encoding='utf-8')  # открываем файл на чтение
-        # data = json.load(file)  # загружаем из файла данные в словарь data
-        # file.close()
-        # self.radios = data;
-        # self.player = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
-        # self.player.audio_set_volume(50)
+        file = open("stantions.json", 'r', encoding='utf-8')  # открываем файл на чтение
+        data = json.load(file)  # загружаем из файла данные в словарь data
+        file.close()
+        self.radios = data;
+        self.player = vlc.MediaPlayer("http://eptop128server.streamr.ru:8033/eptop128")
+        self.player.audio_set_volume(50)
         super().__init__('Радио')
 
     def run(self, argument=None):
-        pass
-        # if argument == 'включить':
-        #     self.player.play()
-        # elif argument == 'выключить':
-        #     self.player.pause()
-        # elif argument == 'громче':
-        #     self.player.audio_set_volume(self.player.audio_get_volume() - 10)
-        # elif argument == 'тише':
-        #     self.player.audio_set_volume(self.player.audio_get_volume() + 10)
-        # elif argument == 'следующая станция':
-        #     self.current_index_radio += 1
-        #     if self.current_index_radio >= len(self.radios):
-        #         self.current_index_radio = 0
-        #     self.player.set_mrl(self.radios[self.current_index_radio])
-        #     self.player.play()
-        # elif argument == 'предыдущая станция':
-        #     self.current_index_radio -= 1
-        #     if self.current_index_radio < 0:
-        #         self.current_index_radio = len(self.radios) - 1
-        #     self.player.set_mrl(self.radios[self.current_index_radio])
-        #     self.player.play()
+        if argument == 'включить':
+            self.player.play()
+        elif argument == 'выключить':
+            self.player.pause()
+        elif argument == 'громче':
+            self.player.audio_set_volume(self.player.audio_get_volume() + 10)
+        elif argument == 'тише':
+            self.player.audio_set_volume(self.player.audio_get_volume() - 10)
+        elif argument == 'следующая станция':
+            self.current_index_radio += 1
+            if self.current_index_radio >= len(self.radios):
+                self.current_index_radio = 0
+            self.player.set_mrl(self.radios[self.current_index_radio])
+            self.player.play()
+        elif argument == 'предыдущая станция':
+            self.current_index_radio -= 1
+            if self.current_index_radio < 0:
+                self.current_index_radio = len(self.radios) - 1
+            self.player.set_mrl(self.radios[self.current_index_radio])
+            self.player.play()
 
 
 class ShellCommand(Command):
