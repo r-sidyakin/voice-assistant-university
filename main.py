@@ -28,8 +28,6 @@ class Worker(Thread):
 
         print(count)
         if (count > maxCount):
-            print("замена очка")
-            # os.remove("app.log")
             logfilew=open("app.log",'w')
             for el in list:
                 el = ' '.join(el.split())
@@ -110,10 +108,7 @@ def main():
         key_word=settings_data[0]
     except:
         pass
-    #keyboard.add_hotkey('f', lambda: print('Hello'))
-    #keyboard.wait("s")
-    # logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s',
-    #                     level=logging.INFO)
+
     log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
 
     logFile = 'app.log'
